@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SIMULASI UNIT LIPID</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#1a1240;--bg2:#2b1d63;--chylo:#ffd23f;--vldl:#ff8a47;--ldl:#ff4f9a;--hdl:#3ee6b0;--sky:#5ac8fa;--ink:#fff;--mut:#c9c0f0;--card:#2f2270;
+--good:#3ee6b0;--ok:#ffd23f;--warn:#ff8a47;--bad:#ff4f6d}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{font-family:Nunito,system-ui,sans-serif;color:var(--ink);background:radial-gradient(circle at 20% 0,#4a2fa0 0,transparent 45%),radial-gradient(circle at 90% 30%,#7a2a8f55 0,transparent 40%),var(--bg);min-height:100vh;line-height:1.6;color-scheme:dark;overflow-x:hidden}
+h1,h2,h3,.f{font-family:Fredoka,Nunito,sans-serif}
+.wrap{max-width:1060px;margin:0 auto;padding:0 18px}
+/* HERO */
+.hero{padding:56px 0 30px;text-align:center;perspective:900px;position:relative}
+.hero h1{font-size:clamp(2rem,6.4vw,4.3rem);font-weight:700;line-height:1;letter-spacing:-1px;
+text-shadow:0 1px 0 #ffd23f,0 2px 0 #ffb52e,0 3px 0 #ff8a47,0 4px 0 #ff4f9a,0 5px 0 #b02a7a,0 14px 24px #0008;transform:rotateX(14deg);transform-style:preserve-3d}
+.hero p{max-width:640px;margin:22px auto 0;color:var(--mut);font-size:1.1rem}
+.orbs{height:190px;position:relative;margin:10px auto 0;transform-style:preserve-3d;transform:rotateX(55deg);width:min(520px,100%)}
+.ring{position:absolute;inset:0;transform-style:preserve-3d;animation:spin 14s linear infinite}
+@keyframes spin{to{transform:rotateZ(360deg)}}
+.sph{position:absolute;border-radius:50%;background:radial-gradient(circle at 30% 28%,#fff9 0,transparent 22%),radial-gradient(circle at 35% 30%,var(--c),var(--d) 75%);box-shadow:inset -8px -10px 18px #0006,0 16px 22px #0005;transform:rotateX(-55deg)}
+.sph b{position:absolute;inset:0;display:grid;place-items:center;font:700 .7rem Fredoka;color:#fff;text-shadow:0 1px 3px #0008}
+/* NAV */
+nav{position:sticky;top:0;z-index:20;padding:10px 0;background:#1a1240dd;backdrop-filter:blur(8px)}
+nav .wrap{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.tab{font:600 1rem Fredoka;border:0;color:#fff;background:var(--bg2);padding:10px 18px;border-radius:14px;cursor:pointer;box-shadow:0 5px 0 #120a30;transition:.12s;transform:translateY(0)}
+.tab:hover{transform:translateY(-2px)}
+.tab:active,.tab.on{transform:translateY(4px);box-shadow:0 1px 0 #120a30}
+.tab.on{background:linear-gradient(#ff6fb1,var(--ldl))}
+.tab:focus-visible,.btn:focus-visible,input:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+section{display:none;padding:34px 0 60px}section.on{display:block}
+h2{font-size:2rem;margin-bottom:6px}
+.sub{color:var(--mut);margin-bottom:22px;max-width:700px}
+/* 3D cards */
+.grid{display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));perspective:1000px}
+.card{background:linear-gradient(145deg,#3b2b86,var(--card));border-radius:22px;padding:20px;box-shadow:0 8px 0 #1c1245,0 22px 30px #0006;transition:transform .15s;transform-style:preserve-3d;will-change:transform}
+.card h3{font-size:1.25rem;margin-bottom:6px}
+.btn{font:700 1rem Fredoka;border:0;border-radius:16px;padding:12px 22px;color:#2a1200;cursor:pointer;background:linear-gradient(#ffe46b,var(--chylo));box-shadow:0 6px 0 #b8860b,0 12px 16px #0005;transition:.1s}
+.btn:active{transform:translateY(5px);box-shadow:0 1px 0 #b8860b}
+.btn.alt{background:linear-gradient(#7de9ff,var(--sky));box-shadow:0 6px 0 #1f7ea8,0 12px 16px #0005}
+/* LAB 1 */
+.lab{display:grid;gap:22px;grid-template-columns:1.1fr 1fr}
+@media(max-width:780px){.lab{grid-template-columns:1fr}}
+.switch{display:flex;gap:0;background:#150d38;border-radius:20px;padding:6px;box-shadow:inset 0 4px 10px #000a;margin-bottom:18px}
+.switch button{flex:1;border:0;font:700 1.1rem Fredoka;padding:14px;border-radius:15px;background:transparent;color:var(--mut);cursor:pointer;transition:.2s}
+.switch button.on{color:#fff;background:linear-gradient(#ff9a5c,var(--vldl));box-shadow:0 5px 0 #a84a14}
+.switch button.on.fast{background:linear-gradient(#7de9ff,var(--sky));box-shadow:0 5px 0 #1f7ea8}
+.scene{position:relative;height:360px;border-radius:24px;background:linear-gradient(#26185b,#150d38);overflow:hidden;box-shadow:inset 0 0 40px #000a,0 8px 0 #1c1245}
+.org{position:absolute;left:50%;transform:translateX(-50%);text-align:center;font:600 .85rem Fredoka;z-index:3}
+.org i{display:block;font-style:normal;font-size:2.4rem;filter:drop-shadow(0 8px 6px #0008)}
+.vessel{position:absolute;left:50%;top:72px;bottom:82px;width:70px;transform:translateX(-50%);border-radius:40px;background:linear-gradient(90deg,#7a0f2a,#e0345a 45%,#7a0f2a);box-shadow:inset 0 0 18px #000a,0 0 26px #e0345a55}
+.pt{position:absolute;left:50%;border-radius:50%;opacity:0;animation:fl 3.2s linear infinite;background:radial-gradient(circle at 30% 30%,#fff8,var(--c) 40%,var(--d));box-shadow:inset -3px -3px 6px #0005}
+@keyframes fl{0%{top:6%;opacity:0}12%{opacity:1}88%{opacity:1}100%{top:92%;opacity:0}}
+.up .pt{animation-direction:reverse}
+.meter{margin:12px 0}.meter span{display:flex;justify-content:space-between;font-weight:800;font-size:.95rem}
+.bar{height:18px;border-radius:10px;background:#150d38;box-shadow:inset 0 3px 6px #000a;overflow:hidden;margin-top:4px}
+.bar i{display:block;height:100%;width:50%;border-radius:10px;background:linear-gradient(#ffffff55,transparent 50%),var(--c);transition:width .9s cubic-bezier(.3,1.5,.5,1)}
+.story{margin-top:16px;background:#150d38;border-radius:16px;padding:14px 16px;border-left:6px solid var(--vldl);font-size:.98rem}
+/* LAB 2 */
+.steps{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.flow{display:flex;flex-direction:column;gap:12px}
+.step{display:flex;gap:14px;align-items:center;padding:14px 16px;border-radius:18px;background:var(--card);box-shadow:0 5px 0 #1c1245;animation:pop .4s both}
+@keyframes pop{from{transform:scale(.85) rotateX(40deg);opacity:0}}
+.step .n{flex:none;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font:700 1.1rem Fredoka;color:#2a1200;background:radial-gradient(circle at 30% 30%,#fff9,var(--chylo) 45%,#e69b00);box-shadow:0 4px 8px #0006}
+.gl{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));margin-top:26px;perspective:900px}
+.flip{height:150px;cursor:pointer;transform-style:preserve-3d;transition:transform .6s;position:relative;border:0;background:none;color:inherit;text-align:left}
+.flip.on{transform:rotateY(180deg)}
+.flip div{position:absolute;inset:0;border-radius:18px;padding:14px;backface-visibility:hidden;display:flex;flex-direction:column;justify-content:center;box-shadow:0 6px 0 #1c1245}
+.flip .fr{background:linear-gradient(145deg,var(--c),var(--d));color:#1a0a33;font:700 1.5rem Fredoka;align-items:center;text-align:center}
+.flip .fr small{font:700 .8rem Nunito}
+.flip .bk{background:var(--card);transform:rotateY(180deg);font-size:.86rem;line-height:1.45}
+/* LAB 3 */
+.val{font-family:Fredoka}
+.res{display:grid;gap:12px;margin-top:6px}
+.res .row{background:#150d38;border-radius:16px;padding:12px 14px;border-left:6px solid var(--c)}
+.res .row b{font-family:Fredoka}
+.chip{display:inline-block;padding:3px 12px;border-radius:999px;font:700 .85rem Fredoka;color:#1a0a33}
+.l0{background:var(--good)}.l1{background:var(--ok)}.l2{background:var(--warn)}.l3{background:var(--bad);color:#fff}
+.prosedur{counter-reset:p;list-style:none;padding:0;display:grid;gap:8px;font-size:.95rem}
+.prosedur li{counter-increment:p;padding-left:38px;position:relative}
+.prosedur li::before{content:counter(p);position:absolute;left:0;top:0;width:28px;height:28px;border-radius:50%;background:var(--sky);color:#102;display:grid;place-items:center;font:700 .85rem Fredoka}
+.stage{position:relative;height:240px;margin:14px 0;border-radius:20px;background:linear-gradient(#26185b,#150d38);box-shadow:inset 0 0 30px #000a;display:flex;justify-content:center;align-items:flex-end;padding-bottom:14px;perspective:600px}
+.beaker{width:130px;height:140px;border:4px solid #ffffff77;border-top:0;border-radius:0 0 30px 30px;position:relative;overflow:hidden;box-shadow:inset 0 0 18px #fff3,0 16px 16px #0007;background:#ffffff12;transform:rotateY(-12deg)}
+.beaker i{position:absolute;left:0;right:0;bottom:0;height:68%;transition:background .5s;background:#ffe9a8;box-shadow:inset 0 10px 14px #fff4}
+.st{position:absolute;top:8px;width:20px;height:112px;border-radius:4px;z-index:3;transition:transform .45s;background:linear-gradient(#f7f1e3 0 52%,var(--tip) 52%);box-shadow:3px 6px 8px #0006}
+.st.dn{transform:translateY(62px)}
+.scale{position:relative;height:22px;border-radius:12px;margin:26px 0 8px;background:linear-gradient(90deg,#e23b3b,#ff9a3c,#ffe14a,#3ee6b0,#2a8be0,#6a3fd1);box-shadow:inset 0 3px 6px #0006}
+.scale b{position:absolute;top:-8px;width:20px;height:38px;border-radius:10px;background:radial-gradient(circle at 30% 25%,#fff,#ddd 60%);box-shadow:0 6px 8px #0008;transition:left .8s cubic-bezier(.3,1.5,.5,1),opacity .3s;opacity:0;margin-left:-10px}
+.lcd{font:700 2.6rem Fredoka;text-align:center;background:#0b2b1f;color:#5dffb0;border-radius:14px;padding:4px;box-shadow:inset 0 4px 10px #000c;text-shadow:0 0 12px #5dffb0}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chips .btn{padding:8px 12px;font-size:.88rem}
+.chips .btn.sel{background:linear-gradient(#ff8fc4,var(--ldl));color:#fff;box-shadow:0 6px 0 #a3125a,0 12px 16px #0005}
+.tt{width:70px;height:190px;border-radius:8px 8px 34px 34px;border:4px solid #ffffff66;background:#ffffff14;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;box-shadow:inset 0 0 16px #fff3,0 16px 16px #0007;transform:rotateY(-16deg)}
+.tt div{transition:background .8s,height .6s;width:100%}
+.tt.glow div:last-child{box-shadow:0 0 22px #74e07a}
+.cs{background:var(--sky)}.cp{background:var(--hdl)}.cn{background:#cfc6f5}.cw{background:var(--ok)}.cl{background:#a8f0d4}
+.prosedur li.done{color:#fff}.prosedur li.wait{opacity:.5}
+.warn{background:#4a1f2e;border-left:6px solid var(--bad);border-radius:14px;padding:10px 14px;font-size:.88rem;margin-top:14px}
+.stage2{border-radius:20px;background:linear-gradient(#26185b,#150d38);box-shadow:inset 0 0 30px #000a;padding:14px 8px 8px;perspective:600px}
+.pots,.tubes{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.pot{position:relative;height:210px;display:flex;align-items:flex-end;justify-content:center}
+.pn{text-align:center;font:600 .82rem Fredoka;margin-top:8px;color:var(--mut)}
+.pots .beaker{width:96px;height:110px}
+.pot .st{top:0;width:16px}
+.lb{left:calc(50% - 36px)}.lr{left:calc(50% - 8px)}.up{left:calc(50% + 20px)}
+.st.up{background:linear-gradient(#e6e0bd 0 52%,var(--tip) 52%)}
+.tissue{display:none;background:#efe9d8;color:#3a3020;border-radius:12px;padding:8px;margin-top:10px;justify-content:space-around;font:600 .78rem Fredoka;box-shadow:inset 0 2px 6px #0003}
+.sw{display:inline-block;width:12px;height:44px;border-radius:3px;margin:0 2px;box-shadow:1px 2px 3px #0004}
+.chart{display:none;grid-template-columns:repeat(14,1fr);gap:2px;margin-top:26px}
+.chart div{height:34px;border-radius:6px;display:grid;place-items:end center;font:700 .62rem Fredoka;color:#102;position:relative;padding-bottom:2px}
+.mk{position:absolute;top:-17px;left:50%;margin-left:-8px;background:#fff;color:#102;border-radius:50%;width:16px;height:16px;font-size:.65rem;display:grid;place-items:center;box-shadow:0 2px 4px #0006}
+.prosedur li.cur{color:var(--chylo);font-weight:800}
+#tm:empty{display:none}
+#stg{position:relative;overflow:hidden;padding-top:80px}
+.lgd{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:.82rem;color:var(--mut)}
+.lgd span{display:flex;align-items:center;gap:6px}
+.lgd i{width:10px;height:22px;border-radius:3px;display:inline-block;box-shadow:1px 2px 3px #0005}
+.tt{position:relative}
+.rg{position:absolute;top:6px;left:50%;width:150px;margin-left:-75px;text-align:center;font:600 .7rem Fredoka;opacity:0;transition:left .5s,opacity .3s;z-index:5}
+.rg.show{opacity:1}
+.rg i{display:block;font-style:normal;font-size:2.2rem;transition:transform .3s;filter:drop-shadow(0 6px 5px #0008)}
+.rg.pour i{transform:rotate(-35deg)}
+.rg small{display:inline-block;background:#150d38ee;padding:2px 8px;border-radius:8px}
+.stream{position:absolute;width:5px;margin-left:-2px;border-radius:3px;z-index:4;transform-origin:top;animation:sf .5s ease-out forwards;box-shadow:0 0 6px #fff6}
+@keyframes sf{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+.dr{position:absolute;width:9px;height:12px;margin-left:-4px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;background:var(--col);box-shadow:inset -2px -2px 3px #0003;animation:fd .6s ease-in forwards;z-index:4}
+@keyframes fd{to{transform:translateY(var(--fall))}}
+.pot{transform-origin:50% 100%}
+.pot.shake{animation:shk .45s ease-in-out 4}
+@keyframes shk{0%,100%{transform:rotate(0)}25%{transform:rotate(-14deg) translateX(-5px)}50%{transform:rotate(12deg) translateX(5px)}75%{transform:rotate(-9deg)}}
+.bub{position:absolute;bottom:4px;width:6px;height:6px;border-radius:50%;background:#fffa;animation:rs .9s infinite}
+@keyframes rs{to{transform:translateY(-110px);opacity:0}}
+/* TABLE */
+.tw{overflow-x:auto;border-radius:20px;box-shadow:0 8px 0 #1c1245,0 20px 30px #0006;margin-bottom:26px}
+table{border-collapse:collapse;width:100%;min-width:560px;background:var(--card)}
+th{background:#150d38;font:600 1rem Fredoka;text-align:left;padding:12px 14px}
+td{padding:11px 14px;border-top:1px solid #ffffff18;vertical-align:top;font-size:.95rem}
+tr.hit td{background:#ffffff22;font-weight:800}
+tr.hit td:first-child{box-shadow:inset 6px 0 0 var(--sky)}
+.note{font-size:.88rem;color:var(--mut);background:#150d38;border-radius:14px;padding:12px 16px}
+footer{text-align:center;color:var(--mut);padding:30px 18px 50px;font-size:.9rem}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="hero wrap">
+  <h1>SIMULASI UNIT LIPID</h1>
+  <p>Simulasi praktikum metabolisme lipid: lihat bagaimana lemak bergerak saat kenyang dan puasa, kenali jalur lipoprotein, lalu jalankan uji keasaman dan uji kolesterol seperti di laboratorium.</p>
+  <div class="orbs"><div class="ring" id="ring"></div></div>
+</header>
+<nav><div class="wrap" role="tablist">
+  <button class="tab on" data-t="t1">🍽️ Kenyang vs Puasa</button>
+  <button class="tab" data-t="t2">🧬 Jalur Lipoprotein</button>
+  <button class="tab" data-t="t3">🧪 Uji Praktikum</button>
+  <button class="tab" data-t="t4">📋 Tabel Interpretasi</button>
+</div></nav>
+<main class="wrap">
+<section id="t1" class="on">
+  <h2>Praktikum 1: Pengelolaan Lemak</h2>
+  <p class="sub">Pilih kondisi tubuh, lalu amati partikel di pembuluh darah dan perubahan enzim LPL serta ATGL.</p>
+  <div class="lab">
+    <div>
+      <div class="switch"><button id="bFed" class="on">🍽️ Kenyang</button><button id="bFast" class="fast">🌙 Puasa</button></div>
+      <div class="scene"><div class="org" style="top:8px"><i>🫁</i>Usus &amp; Hati</div><div class="vessel" id="vessel"></div><div class="org" style="bottom:6px"><i>🧈</i>Jaringan adiposa</div></div>
+    </div>
+    <div><div class="card" data-tilt><h3>Panel hormon &amp; enzim</h3><div id="meters"></div><div class="story" id="story"></div></div></div>
+  </div>
+  <div style="margin-top:26px" class="card" data-tilt><h3>Cara membaca simulasi</h3>
+    <p class="sub" style="margin:0">Saat kenyang, partikel <b style="color:var(--chylo)">kilomikron</b> dan <b style="color:var(--vldl)">VLDL</b> bergerak ke jaringan adiposa. Saat puasa, <b style="color:var(--hdl)">asam lemak bebas</b> dan <b style="color:var(--sky)">gliserol</b> bergerak dari jaringan adiposa ke hati.</p></div>
+</section>
+<section id="t2">
+  <h2>Praktikum 2: Jalur Lipoprotein</h2>
+  <p class="sub">Tiga jalur utama, masing-masing menghasilkan lipoprotein tertentu. Pilih jalur dan telusuri tahapannya.</p>
+  <div class="steps" id="pathBtns"></div>
+  <div class="flow" id="flow"></div>
+  <h2 style="margin-top:36px">Kartu istilah</h2>
+  <p class="sub">Klik kartu untuk membaliknya.</p>
+  <div class="gl" id="gl"></div>
+</section>
+<section id="t3">
+  <h2>Praktikum 3: Uji Laboratorium Lipid</h2>
+  <p class="sub">Tiga sampel diuji sekaligus: minyak kelapa murni, minyak kelapa curah, dan minyak tengik. Tekan "Langkah berikutnya" untuk menjalankan prosedur satu per satu.</p>
+  <div class="steps"><button class="tab on" data-u="u1">1. Uji Keasaman</button><button class="tab" data-u="u2">2. Uji Kolesterol</button></div>
+  <div id="u1" class="lab ub">
+    <div class="card" data-tilt>
+      <h3>Meja uji keasaman</h3>
+      <div class="stage2"><div class="pots" id="pots"></div></div>
+      <div class="lgd"><span><i style="background:#2a5bd7"></i>Lakmus biru</span><span><i style="background:#e23b3b"></i>Lakmus merah</span><span><i style="background:linear-gradient(#e8202a,#f8b52e,#6cc24a,#2f6fc9)"></i>Kertas pH universal</span></div>
+      <div class="tissue" id="tissue"></div>
+      <div class="chips" style="margin-top:14px"><button class="btn" id="aNx">Langkah berikutnya</button><button class="btn alt" id="aRs">Ulangi</button><span id="tm" class="note" style="padding:6px 12px"></span></div>
+      <div class="chart" id="chart"></div>
+    </div>
+    <div>
+      <div class="card" data-tilt style="margin-bottom:20px"><h3>Langkah kerja</h3><ol class="prosedur" id="aSteps"></ol></div>
+      <div class="card" data-tilt><h3>Hasil pengamatan</h3><div class="res" id="aRes"></div></div>
+    </div>
+  </div>
+  <div id="u2" class="lab ub" style="display:none">
+    <div class="card" data-tilt>
+      <h3>Rak tabung reaksi</h3>
+      <div class="stage2" id="stg"><div class="rg" id="rg"></div><div class="tubes" id="tubes"></div></div>
+      <div class="note" id="cm" style="margin-top:10px">Siap dimulai.</div>
+      <div class="chips" style="margin-top:14px"><button class="btn" id="cNx">Langkah berikutnya</button><button class="btn alt" id="cRs">Ulangi</button><button class="btn alt" id="cSx">Skenario: semua sampel jadi merah</button></div>
+      <div class="warn">Kloroform, asam asetat anhidrida, dan H₂SO₄ pekat berbahaya. Di laboratorium gunakan jas lab, sarung tangan, kacamata, dan lemari asam.</div>
+    </div>
+    <div>
+      <div class="card" data-tilt style="margin-bottom:20px"><h3>Langkah kerja</h3><ol class="prosedur" id="cSteps"></ol></div>
+      <div class="card" data-tilt><h3>Hasil pengamatan</h3><div class="res" id="cRes"></div></div>
+    </div>
+  </div>
+</section>
+<section id="t4">
+  <h2>Tabel Interpretasi</h2>
+  <p class="sub">Baris yang menyala mengikuti sampel dan uji yang sedang kamu jalankan di Praktikum 3.</p>
+  <h2 style="font-size:1.5rem">Uji keasaman: lakmus dan pH</h2>
+  <div class="tw"><table><thead><tr><th>pH</th><th>Lakmus biru</th><th>Lakmus merah</th><th>Kesimpulan</th><th>Makna pada lipid</th></tr></thead><tbody id="tblA">
+    <tr data-k="a0"><td>&lt; 6,5</td><td>Berubah merah</td><td>Tetap merah</td><td><span class="chip l2">Asam</span></td><td>Asam lemak bebas (FFA) tinggi akibat pemecahan trigliserida. Contoh: minyak kelapa curah (pH 6) dan minyak tengik (pH 4)</td></tr>
+    <tr data-k="a1"><td>6,5 – 7,5</td><td>Tetap biru</td><td>Tetap merah</td><td><span class="chip l0">Netral</span></td><td>Lemak segar, FFA rendah. Contoh: minyak kelapa murni (pH 7)</td></tr>
+    <tr data-k="a2"><td>&gt; 7,5</td><td>Tetap biru</td><td>Berubah biru</td><td><span class="chip cs">Basa</span></td><td>Ada sisa alkali, misalnya sabun hasil saponifikasi</td></tr>
+  </tbody></table></div>
+  <h2 style="font-size:1.5rem">Uji kolesterol</h2>
+  <div class="tw"><table><thead><tr><th>Uji</th><th>Pengamatan</th><th>Kesimpulan</th><th>Makna</th></tr></thead><tbody id="tblC">
+    <tr data-k="c0"><td>Liebermann-Burchard</td><td>Merah, lalu biru, lalu hijau atau biru-hijau</td><td><span class="chip cp">Positif</span></td><td>Urutan khas kolesterol murni (sterol)</td></tr>
+    <tr data-k="c1"><td>Liebermann-Burchard</td><td>Larutan jernih, kuning pucat, atau kuning keemasan tanpa warna hijau</td><td><span class="chip cn">Negatif</span></td><td>Kolesterol tidak terdeteksi. Contoh: minyak kelapa murni dan curah pada hasil awal</td></tr>
+    <tr data-k="c2"><td>Liebermann-Burchard</td><td>Merah dan tidak berubah menjadi hijau</td><td><span class="chip cl">Positif lemah</span></td><td>Reaksi sterol yang lemah; intensitas dapat dipengaruhi pigmen, oksidasi, atau komposisi minyak. Contoh: minyak tengik</td></tr>
+  </tbody></table></div>
+  <h2 style="font-size:1.5rem">Jika sampel menghasilkan warna merah</h2>
+  <div class="tw"><table><thead><tr><th>Sampel</th><th>Warna merah</th><th>Interpretasi</th></tr></thead><tbody id="tblM">
+    <tr data-k="m0"><td>Minyak kelapa murni</td><td>Mungkin terjadi</td><td>Dibaca positif lemah. Minyak kelapa adalah minyak nabati yang umumnya tidak mengandung kolesterol hewani, jadi merah lebih mungkin berasal dari reaksi sterol atau terpenoid nabati, atau reaksi yang belum sempurna.</td></tr>
+    <tr data-k="m1"><td>Minyak curah / goreng</td><td>Mungkin terjadi</td><td>Bila tetap merah dan tidak berubah hijau, hasilnya dibaca positif lemah. Dapat dipengaruhi pigmen, oksidasi, atau komposisi minyak.</td></tr>
+    <tr data-k="m2"><td>Kolesterol murni (pembanding)</td><td>Merah, lalu biru, lalu hijau</td><td>Inilah urutan positif yang diharapkan.</td></tr>
+  </tbody></table></div>
+  <h2 style="font-size:1.5rem">Interpretasi kondisi kenyang dan puasa</h2>
+  <div class="tw"><table><thead><tr><th>Komponen</th><th>Kenyang</th><th>Puasa</th><th>Interpretasi</th></tr></thead><tbody>
+    <tr><td>Insulin</td><td>Meningkat</td><td>Menurun</td><td>Pemicu penyimpanan lemak saat kenyang</td></tr>
+    <tr><td>Kilomikron</td><td>Dibentuk di usus</td><td>Tidak terbentuk</td><td>Mengangkut lemak makanan</td></tr>
+    <tr><td>LPL</td><td>Meningkat</td><td>Menurun</td><td>Memecah trigliserida agar masuk sel lemak</td></tr>
+    <tr><td>ATGL</td><td>Menurun</td><td>Meningkat</td><td>Pemecahan simpanan lemak aktif saat puasa</td></tr>
+    <tr><td>Hormon pertumbuhan, kortisol, katekolamin</td><td>Rendah</td><td>Meningkat</td><td>Merangsang mobilisasi cadangan lemak</td></tr>
+    <tr><td>FFA dan gliserol</td><td>Sedikit dilepas</td><td>Dilepas ke darah</td><td>FFA menjadi energi atau VLDL, gliserol menjadi glukosa (glukoneogenesis)</td></tr>
+  </tbody></table></div>
+  <p class="note">Langkah kerja mengikuti modul praktikum Anda. Warna dan nilai pH pada simulasi adalah ilustrasi untuk belajar; bandingkan dengan hasil pengamatan sebenarnya di laboratorium.</p>
+</section>
+</main>
+<footer>SIMULASI UNIT LIPID · dibuat dari materi metabolisme lipoprotein dan pengelolaan lemak</footer>
+<script>
+const $=(s,r=document)=>r.querySelector(s);
+const orbs=[['VLDL','#ff8a47','#b8430a'],['LDL','#ff4f9a','#a3125a'],['HDL','#3ee6b0','#0a8a66'],['KM','#ffd23f','#b8860b'],['IDL','#5ac8fa','#1f7ea8']];
+orbs.forEach((o,i)=>{const a=i/orbs.length*Math.PI*2,s=i%2?58:76;
+const e=document.createElement('div');e.className='sph';e.style.cssText=`--c:${o[1]};--d:${o[2]};width:${s}px;height:${s}px;left:calc(50% + ${Math.cos(a)*190-s/2}px);top:calc(50% + ${Math.sin(a)*70-s/2}px)`;
+e.innerHTML='<b>'+o[0]+'</b>';$('#ring').appendChild(e)});
+document.querySelectorAll('.tab[data-t]').forEach(b=>b.onclick=()=>{
+document.querySelectorAll('.tab[data-t],section').forEach(x=>x.classList.remove('on'));b.classList.add('on');$('#'+b.dataset.t).classList.add('on');
+window.scrollTo({top:$('nav').offsetTop,behavior:'smooth'})});
+function tilt(){document.querySelectorAll('[data-tilt]').forEach(c=>{if(c._t)return;c._t=1;
+c.addEventListener('mousemove',e=>{if(e.target.closest('button'))return;const r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
+c.style.transform=`rotateY(${x*10}deg) rotateX(${-y*10}deg) translateZ(8px)`});
+c.addEventListener('mouseleave',()=>c.style.transform='')})}
+const S={fed:{ins:90,hor:15,lpl:90,atgl:15,
+story:'Glukosa darah naik, pankreas melepas insulin. Lemak makanan dikemas jadi kilomikron di usus, hati melepas VLDL. LPL di jaringan adiposa memecah trigliserida menjadi asam lemak yang masuk sel lemak dan disimpan lagi. ATGL turun, jadi lemak lebih banyak disimpan dan lebih sedikit dipecah.',
+pts:[['--c:#ffd23f;--d:#b8860b',22],['--c:#ff8a47;--d:#b8430a',16]],cls:''},
+fast:{ins:10,hor:90,lpl:15,atgl:90,
+story:'Tidak ada asupan makanan, insulin turun dan kilomikron tidak terbentuk. Hormon pertumbuhan, kortisol, dan katekolamin naik, ATGL aktif memecah trigliserida menjadi asam lemak bebas dan gliserol. Di hati, asam lemak menjadi energi atau VLDL, sedangkan gliserol dipakai untuk glukoneogenesis agar glukosa darah tetap terjaga.',
+pts:[['--c:#3ee6b0;--d:#0a8a66',12],['--c:#5ac8fa;--d:#1f7ea8',16]],cls:'up'}};
+const M=[['Insulin','ins','#ff4f9a'],['Hormon pertumbuhan, kortisol, katekolamin','hor','#5ac8fa'],['Aktivitas LPL','lpl','#ffd23f'],['Aktivitas ATGL','atgl','#3ee6b0']];
+$('#meters').innerHTML=M.map(m=>`<div class="meter"><span>${m[0]}<em id="v_${m[1]}" style="font-style:normal"></em></span><div class="bar"><i id="b_${m[1]}" style="--c:${m[2]}"></i></div></div>`).join('');
+function setState(k){const s=S[k];
+$('#bFed').classList.toggle('on',k=='fed');$('#bFast').classList.toggle('on',k=='fast');
+M.forEach(m=>{$('#b_'+m[1]).style.width=s[m[1]]+'%';$('#v_'+m[1]).textContent=s[m[1]]>50?'↑ tinggi':'↓ rendah'});
+$('#story').textContent=s.story;$('#story').style.borderColor=k=='fed'?'#ff8a47':'#5ac8fa';
+const v=$('#vessel');v.className='vessel '+s.cls;v.innerHTML='';
+for(let i=0;i<10;i++){const p=s.pts[i%2],e=document.createElement('div');e.className='pt';
+e.style.cssText=`${p[0]};width:${p[1]}px;height:${p[1]}px;margin-left:${(i%3-1)*16-p[1]/2+35}px;left:0;animation-delay:${-i*.32}s`;v.appendChild(e)}}
+$('#bFed').onclick=()=>setState('fed');$('#bFast').onclick=()=>setState('fast');setState('fed');
+const P={
+'Eksogen':[['Lipid makanan diserap di usus halus dan dikemas menjadi kilomikron (ApoB-48).','Kilomikron memperoleh ApoC dan ApoE, lalu beredar di darah.'],['LPL di kapiler memecah trigliserida menjadi FFA untuk otot atau jaringan adiposa.'],['Sisa partikel menjadi kilomikron remnant dan diambil hati lewat reseptor LDLR.']],
+'Endogen':[['Hati membentuk VLDL dengan ApoB-100 untuk mengangkut lemak ke jaringan.'],['LPL memecah trigliserida VLDL menjadi FFA, VLDL berubah menjadi IDL.'],['IDL diolah (melalui HL) menjadi LDL, yang diambil hati atau jaringan perifer lewat LDLR.']],
+'Reverse Cholesterol Transport':[['Hati dan usus halus membentuk nascent HDL dengan ApoA-I.'],['Nascent HDL mengambil kolesterol bebas dari sel perifer, termasuk makrofag.'],['LCAT mengubah kolesterol bebas menjadi kolesterol ester, HDL menjadi mature HDL.'],['Mature HDL membawa kolesterol ke hati lewat SR-B1 atau menukarnya dengan lipoprotein lain melalui CETP.']]};
+function path(k){$('#pathBtns').innerHTML=Object.keys(P).map(n=>`<button class="tab ${n==k?'on':''}" data-p="${n}">${n}</button>`).join('');
+document.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>path(b.dataset.p));
+$('#flow').innerHTML=P[k].map((s,i)=>`<div class="step" style="animation-delay:${i*.12}s"><div class="n">${i+1}</div><div>${s.join(' ')}</div></div>`).join('')}
+path('Eksogen');
+const G=[['LPL','Lipoprotein Lipase','Enzim yang memecah trigliserida dalam kilomikron dan VLDL menjadi FFA untuk otot atau disimpan di adiposa.','#ffd23f','#e69b00'],
+['FFA','Free Fatty Acids','Hasil pemecahan trigliserida; sumber energi terutama oleh otot atau disimpan kembali di adiposa.','#3ee6b0','#0a8a66'],
+['ApoB','Apolipoprotein B','Protein struktural utama pada kilomikron dan VLDL/LDL; berperan dalam pembentukan lipoprotein.','#ff8a47','#b8430a'],
+['ApoA-I','Apolipoprotein A-I','Protein utama penyusun HDL; membantu pembentukan nascent HDL dan pengambilan kolesterol sel perifer.','#5ac8fa','#1f7ea8'],
+['HDL','High-Density Lipoprotein','Mengangkut kolesterol dari jaringan perifer menuju hati.','#7df0c8','#16a37a'],
+['Nascent HDL','HDL awal','Dibentuk hati dan usus, lalu mengambil kolesterol bebas dari jaringan perifer.','#c3a6ff','#6a3fd1'],
+['Mature HDL','HDL matang','Sudah mengandung kolesterol ester; membawa kolesterol ke hati atau menukarnya dengan lipoprotein lain.','#ff9bd0','#d12a7a'],
+['SR-B1','Scavenger Receptor Class B Type 1','Reseptor hati yang mengambil kolesterol ester dari HDL tanpa mengambil seluruh partikel HDL.','#ffe46b','#d9a400']];
+$('#gl').innerHTML=G.map(g=>`<button class="flip" style="--c:${g[3]};--d:${g[4]}" aria-label="${g[0]}: ${g[1]}"><div class="fr">${g[0]}<small>${g[1]}</small></div><div class="bk">${g[2]}</div></button>`).join('');
+document.querySelectorAll('.flip').forEach(f=>f.onclick=()=>f.classList.toggle('on'));
+/* LAB 3 */
+document.querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-u]').forEach(x=>x.classList.remove('on'));b.classList.add('on');document.querySelectorAll('.ub').forEach(u=>u.style.display=u.id==b.dataset.u?'':'none')});
+const hit=(tb,k)=>{k=[].concat(k);document.querySelectorAll(tb+' tr').forEach(r=>r.classList.toggle('hit',k.includes(r.dataset.k)))};
+const row=(a,b)=>`<div class="row" style="--c:var(--sky)"><b>${a}:</b> ${b}</div>`;
+// nama, warna cairan, pH, ujung lakmus biru (bila asam), warna akhir tabung, warna campuran, catatan
+const SM=[['Minyak kelapa murni','#fff1b8',7,'#2a5bd7','#f6efc0','#fbf6dc','FFA sangat rendah, lemak masih segar.'],
+['Minyak kelapa curah','#f0c75e',6,'#e3707a','#eddc8a','#f3e6b0','FFA mulai meningkat karena penyimpanan dan pengolahan.'],
+['Minyak tengik','#b9772c',4,'#d42a2a','#b3202a','#d9b370','FFA tinggi akibat hidrolisis dan oksidasi trigliserida.']];
+const PHC=['#e8202a','#ec3a2c','#f05a28','#f58a2a','#f8b52e','#f2d92e','#6cc24a','#3fb48a','#2f9fc2','#2f6fc9','#4a4fc0','#6a3fb8','#7a2fa8','#8a2a98'];
+const cl=p=>p<6.5?0:p<=7.5?1:2,CN=['Asam','Netral','Basa'],CC=['l2','l0','cs'];
+const lkc=(i,k)=>{const c=cl(SM[i][2]);return k=='b'?(c==0?SM[i][3]:'#2a5bd7'):(c==2?'#2a5bd7':'#e23b3b')};
+const AT=['Celupkan kertas lakmus merah dan biru selama 10 detik ke dalam ketiga pot sampel.','Tiriskan kertas lakmus tersebut di atas tisu.','Amati perubahan warna yang terjadi pada kertas lakmus.','Celupkan kertas pH universal selama 10 detik ke dalam ketiga pot sampel.','Analisis perubahan warna kertas terhadap skala pH universal dan tentukan pH setiap sampel.'];
+const li=(arr,n)=>arr.map((t,i)=>`<li class="${i<n?'done':i==n?'cur':'wait'}">${t}</li>`).join('');
+const AL=['Celup lakmus','Tiriskan di tisu','Amati lakmus','Celup kertas pH','Baca skala pH'];
+let sa=0,busy=0;
+function renderA(){
+$('#pots').className='pots';
+$('#pots').innerHTML=SM.map((s,i)=>`<div><div class="pot"><div class="st lk lb" id="a${i}b" style="--tip:${sa>=1?lkc(i,'b'):'#2a5bd7'}"></div><div class="st lk lr" id="a${i}r" style="--tip:${sa>=1?lkc(i,'r'):'#e23b3b'}"></div><div class="st up" id="a${i}u" style="--tip:${sa>=4?PHC[s[2]-1]:'#efe6b8'}"></div><div class="beaker"><i style="background:${s[1]}"></i></div></div><div class="pn">${i+1}. ${s[0]}</div></div>`).join('');
+$('#tissue').style.display=sa>=2?'flex':'none';
+$('#tissue').innerHTML=SM.map((s,i)=>`<div style="text-align:center"><span class="sw" style="background:${lkc(i,'b')}"></span><span class="sw" style="background:${lkc(i,'r')}"></span><div>Pot ${i+1}</div></div>`).join('');
+$('#chart').style.display=sa>=4?'grid':'none';
+$('#chart').innerHTML=PHC.map((c,n)=>`<div style="background:${c}">${n+1}${sa>=5?SM.map((s,i)=>s[2]==n+1?`<span class="mk">${i+1}</span>`:'').join(''):''}</div>`).join('');
+$('#aSteps').innerHTML=li(AT,sa);
+$('#aNx').textContent=sa>=5?'Selesai':AL[sa];$('#aNx').disabled=sa>=5;$('#aNx').style.opacity=sa>=5?.5:1;
+let r='<div class="note">Jalankan langkah kerja untuk melihat hasilnya.</div>';
+if(sa>=3){r=SM.map((s,i)=>{const c=cl(s[2]);return row((i+1)+'. '+s[0],'lakmus biru '+(c==0?'berubah merah':'tetap biru')+', lakmus merah '+(c==2?'berubah biru':'tetap merah')+(sa>=5?'. pH '+s[2]+' <span class="chip '+CC[c]+'">'+CN[c]+'</span>':''))}).join('');
+if(sa>=5)r+='<div class="note">'+SM.map((s,i)=>(i+1)+'. '+s[6]).join(' ')+'</div>'}
+$('#aRes').innerHTML=r;
+hit('#tblA',sa>=3?SM.map(s=>'a'+cl(s[2])):[])}
+function dipA(sel,mid,done){busy=1;$('#tm').textContent='⏱ dicelup 10 detik…';
+const els=[...document.querySelectorAll(sel)];els.forEach(e=>e.classList.add('dn'));
+setTimeout(mid,450);setTimeout(()=>els.forEach(e=>e.classList.remove('dn')),1500);
+setTimeout(()=>{busy=0;$('#tm').textContent='';done()},1950)}
+$('#aNx').onclick=()=>{if(busy||sa>=5)return;const n=sa+1,go=()=>{sa=n;renderA()};
+if(n==1)dipA('.lk',()=>SM.forEach((s,i)=>{$('#a'+i+'b').style.setProperty('--tip',lkc(i,'b'));$('#a'+i+'r').style.setProperty('--tip',lkc(i,'r'))}),go);
+else if(n==4)dipA('.up',()=>SM.forEach((s,i)=>$('#a'+i+'u').style.setProperty('--tip',PHC[s[2]-1])),go);
+else go()};
+$('#aRs').onclick=()=>{if(!busy){sa=0;renderA()}};
+renderA();
+/* Uji 2: kolesterol (Liebermann-Burchard) */
+const CT=['Siapkan 3 tabung reaksi yang bersih dan kering. Isi tabung 1 dengan 1 ml minyak kelapa murni, tabung 2 dengan 1 ml minyak kelapa curah, dan tabung 3 dengan 1 ml minyak tengik.','Tambahkan kloroform sebanyak 2 ml pada setiap tabung.','Tambahkan 10 tetes asam asetat anhidrida pada setiap tabung.','Melalui dinding tabung, tambahkan 2–3 tetes asam sulfat pekat.','Homogenkan dengan hati-hati dan diamkan beberapa detik, lalu amati perubahan yang terjadi.'];
+const CL=['Isi sampel ke tabung','Tambah kloroform','Tambah asam asetat anhidrida','Tambah H₂SO₄ pekat','Homogenkan dan amati'];
+let sx=0;
+const FC=i=>sx?['#e8808a','#cf4550','#b3202a'][i]:SM[i][4];
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+let sc=0,bc=0;
+const LY=(i,n)=>{const s=SM[i];return[[0,0,0,0],[s[1],22,0,0],[s[5],56,0,0],[s[5],62,0,0],[s[5],62,'#e4cf8a',5],[FC(i),64,0,0]][n]};
+function buildC(){$('#tubes').innerHTML=SM.map((s,i)=>`<div><div class="pot" id="tp${i}"><div class="tt"><div id="t${i}a"></div><div id="t${i}b"></div></div></div><div class="pn">${i+1}. ${s[0]}</div></div>`).join('');[0,1,2].forEach(i=>setT(i,0))}
+function setT(i,n){const l=LY(i,n),a=$('#t'+i+'a'),b=$('#t'+i+'b');a.style.background=l[0]||'transparent';a.style.height=l[1]+'%';b.style.background=l[2]||'transparent';b.style.height=l[3]+'%'}
+function tpos(i){const t=$('#tp'+i+' .tt').getBoundingClientRect(),s=$('#stg').getBoundingClientRect();return{x:t.left-s.left+t.width/2,top:t.top-s.top,w:t.width,h:t.height}}
+async function drops(i,n,col,wall){const p=tpos(i);for(let k=0;k<n;k++){const d=document.createElement('div');d.className='dr';d.style.cssText=`left:${p.x+(wall?-p.w/2+9:0)}px;top:62px;--col:${col};--fall:${p.top+p.h*.5-62}px`;$('#stg').appendChild(d);setTimeout(()=>d.remove(),800);await sleep(wall?380:130)}}
+async function stepC(n){
+$('#cm').textContent=CT[n-1];const rg=$('#rg');
+if(n<5){
+const cfg=[0,['🧴','pour'],['🧴','pour','#cfefff'],['💧','drip','#e8f6ff'],['💧','drip','#e4cf8a']][n],lab=['','','Kloroform 2 ml','Asam asetat anhidrida 10 tetes','H₂SO₄ pekat 2–3 tetes'];
+rg.className='rg show '+cfg[1];
+for(let i=0;i<3;i++){
+rg.innerHTML=`<i>${cfg[0]}</i><small>${n==1?SM[i][0]+' 1 ml':lab[n]}</small>`;rg.style.left=tpos(i).x+'px';await sleep(600);
+if(cfg[1]=='pour'){const p=tpos(i),s=document.createElement('div');s.className='stream';s.style.cssText=`left:${p.x}px;top:62px;height:${p.top+p.h*.5-62}px;background:${n==1?SM[i][1]:cfg[2]}`;$('#stg').appendChild(s);await sleep(850);s.remove()}
+else await drops(i,n==3?10:3,cfg[2],n==4);
+setT(i,n);await sleep(400)}
+rg.className='rg';return}
+const ps=[0,1,2].map(i=>$('#tp'+i));
+ps.forEach(e=>{e.classList.add('shake');const t=e.querySelector('.tt');for(let k=0;k<7;k++){const b=document.createElement('span');b.className='bub';b.style.cssText=`left:${8+k*8}px;animation-delay:${k*.13}s`;t.appendChild(b)}});
+await sleep(1900);ps.forEach(e=>{e.classList.remove('shake');e.querySelectorAll('.bub').forEach(x=>x.remove())});
+$('#cm').textContent='Didiamkan beberapa detik…';await sleep(1400);
+[0,1,2].forEach(i=>setT(i,5));await sleep(1000);
+$('#cm').textContent='Selesai. Amati warna setiap tabung.'}
+function renderC(){
+$('#cSteps').innerHTML=li(CT,sc);
+$('#cNx').textContent=sc>=5?'Selesai':CL[sc];$('#cNx').disabled=sc>=5;$('#cNx').style.opacity=sc>=5?.5:1;
+$('#cSx').textContent=sx?'Skenario: kembali ke hasil awal':'Skenario: semua sampel jadi merah';
+let r='<div class="note">Jalankan langkah kerja untuk melihat hasilnya.</div>';
+const dots='<span class="chip" style="background:#d42a2a;color:#fff">merah</span> → <span class="chip" style="background:#2a5bd7;color:#fff">biru</span> → <span class="chip" style="background:#12b886">hijau</span>';
+if(sc==5){
+const ob=sx?['Larutan merah muda, tidak berubah hijau.','Larutan merah, tidak berubah hijau.','Larutan merah tua, tidak berubah hijau.']:['Larutan kuning pucat dan jernih, tanpa warna hijau.','Larutan kuning keemasan, tanpa warna hijau.','Larutan merah, tidak berubah hijau.'];
+const ch=sx?[['cl','Positif lemah'],['cl','Positif lemah'],['cl','Positif lemah']]:[['cn','Negatif'],['cn','Negatif'],['cl','Positif lemah']];
+r=SM.map((s,i)=>row((i+1)+'. '+s[0],ob[i]+' <span class="chip '+ch[i][0]+'">'+ch[i][1]+'</span>')).join('');
+r+=sx?row('Jika minyak kelapa murni merah','mungkin terjadi dan dibaca positif lemah. Minyak kelapa adalah minyak nabati yang umumnya tidak mengandung kolesterol hewani. Merah lebih mungkin berasal dari reaksi sterol atau terpenoid nabati, atau reaksi yang belum sempurna.')
++row('Jika minyak curah merah','mungkin terjadi. Bila tetap merah dan tidak berubah hijau, hasilnya dibaca positif lemah, karena dapat dipengaruhi pigmen, oksidasi, atau komposisi minyak.')
++'<div class="note">Pembanding kolesterol murni, urutan positif yang diharapkan: '+dots+'. Amati lebih lama dan bandingkan dengan standar kolesterol serta blanko.</div>'
+:'<div class="note">Positif kuat mengikuti urutan '+dots+'. Warna merah pada minyak tengik berasal dari oksidasi atau pigmen; karena tidak berubah hijau, hasilnya dibaca positif lemah. Coba tombol skenario untuk melihat jika minyak lain ikut merah.</div>'}
+$('#cRes').innerHTML=r;
+hit('#tblC',sc==5?(sx?['c2']:['c1','c1','c2']):[]);hit('#tblM',sc==5&&sx?['m0','m1','m2']:[])}
+$('#cNx').onclick=async()=>{if(bc||sc>=5)return;bc=1;await stepC(sc+1);sc++;bc=0;renderC()};
+$('#cRs').onclick=()=>{if(bc)return;sc=0;$('#cm').textContent='Siap dimulai.';buildC();renderC()};
+$('#cSx').onclick=()=>{if(bc)return;sx=sx?0:1;if(sc==5)[0,1,2].forEach(i=>setT(i,5));renderC()};
+buildC();renderC();tilt();
+</script>
+</body>
+</html>
